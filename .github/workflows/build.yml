@@ -1,0 +1,46 @@
+name: build
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: Configure
+        shell: pwsh
+        env:
+          SVS_BUILD_VERSION: "1.4.11"
+          SVS_BUILD_VERSION_STRING: "1.4.11-skyrim1.7.104"
+        run: xmake f -y -m releasedbg --skyrim_se=y --skyrim_ae=y --skyrim_vr=n
+
+      - name: Build
+        shell: pwsh
+        env:
+          SVS_BUILD_VERSION: "1.4.11"
+          SVS_BUILD_VERSION_STRING: "1.4.11-skyrim1.7.104"
+        run: xmake build -y -v
+
+      - name: Collect
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path out/SKSE/Plugins | Out-Null
+          Copy-Item build/windows/x64/releasedbg/SkyrimVanitySystem.dll out/SKSE/Plugins/
+          if (Test-Path build/windows/x64/releasedbg/SkyrimVanitySystem.pdb) { Copy-Item build/windows/x64/releasedbg/SkyrimVanitySystem.pdb out/SKSE/Plugins/ }
+          if (Test-Path data) { Copy-Item -Recurse -Force data/* out/ }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SkyrimVanitySystem-1.7.104
+          path: out
