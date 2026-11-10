@@ -23,7 +23,7 @@ jobs:
         env:
           SVS_BUILD_VERSION: "1.4.11"
           SVS_BUILD_VERSION_STRING: "1.4.11-skyrim1.7.104"
-        run: xmake f -y -m releasedbg --skyrim_se=y --skyrim_ae=y --skyrim_vr=n
+        run: xmake f -y -m releasedbg --skyrim_se=y --skyrim_ae=y --skyrim_vr=y
 
       - name: Build
         shell: pwsh
